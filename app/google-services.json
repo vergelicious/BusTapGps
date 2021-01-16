@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "830646911496",
+    "project_id": "bustap-71ca5",
+    "storage_bucket": "bustap-71ca5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830646911496:android:50738d9075c1c21e04c7bd",
+        "android_client_info": {
+          "package_name": "com.example.bustap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830646911496-vfvqo26m4s4jv6bqukdlmdbgp615ogmj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBavAxUR34atw_LM1s7cqoj0WgkzKVfBf8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830646911496-vfvqo26m4s4jv6bqukdlmdbgp615ogmj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830646911496:android:a0b3c706052dadf904c7bd",
+        "android_client_info": {
+          "package_name": "com.example.bustapgps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830646911496-vfvqo26m4s4jv6bqukdlmdbgp615ogmj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBavAxUR34atw_LM1s7cqoj0WgkzKVfBf8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830646911496-vfvqo26m4s4jv6bqukdlmdbgp615ogmj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
