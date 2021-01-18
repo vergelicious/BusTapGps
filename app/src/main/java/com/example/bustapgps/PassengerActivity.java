@@ -17,6 +17,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class PassengerActivity extends AppCompatActivity {
 
@@ -32,6 +34,8 @@ public class PassengerActivity extends AppCompatActivity {
     private TextView passengerStatus;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference dbRefPassenger;
+    private String passengerID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,17 +122,18 @@ public class PassengerActivity extends AppCompatActivity {
             loadingBar.setMessage("Please wait.");
             loadingBar.show();
             mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
+                    .addOnCompleteListener((task) -> {
                             if(task.isSuccessful()) {
+
+                                Intent intentPassenger = new Intent(PassengerActivity.this, PassengerMapActivity.class);
+                                startActivity(intentPassenger);
+
                                 Toast.makeText(PassengerActivity.this, "Passenger account successfully logged in.", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
-                            }else{
+                            }else {
                                 Toast.makeText(PassengerActivity.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
                             }
-                        }
                     });
         }
     }
@@ -148,6 +153,13 @@ public class PassengerActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
+                                passengerID = mAuth.getCurrentUser().getUid();
+                                dbRefPassenger = FirebaseDatabase.getInstance().getReference().child("Users").child("Passengers").child(passengerID);
+                                dbRefPassenger.setValue(true);
+
+                                Intent intent = new Intent(PassengerActivity.this, PassengerMapActivity.class);
+                                startActivity(intent);
+
                                 Toast.makeText(PassengerActivity.this, "Passenger account created successfully.", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
                             }else{

@@ -17,6 +17,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class BusActivity extends AppCompatActivity {
 
@@ -32,6 +34,8 @@ public class BusActivity extends AppCompatActivity {
     private ProgressDialog loadingBar;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference dbRefBus;
+    private String busID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,21 +121,19 @@ public class BusActivity extends AppCompatActivity {
             loadingBar.setMessage("Please wait.");
             loadingBar.show();
             mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
+                    .addOnCompleteListener((task) -> {
                             if(task.isSuccessful()) {
-                                Toast.makeText(BusActivity.this, "Bus account successfully logged in.", Toast.LENGTH_SHORT).show();
-                                loadingBar.dismiss();
 
                                 Intent intent = new Intent(BusActivity.this, BusMapActivity.class);
                                 startActivity(intent);
+
+                                Toast.makeText(BusActivity.this, "Bus account successfully logged in.", Toast.LENGTH_SHORT).show();
+                                loadingBar.dismiss();
                             }else{
                                 Toast.makeText(BusActivity.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
                             }
-                        }
-                    });
+                        });
         }
     }
 
@@ -151,12 +153,15 @@ public class BusActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
-                                Toast.makeText(BusActivity.this, "Bus account created successfully.", Toast.LENGTH_SHORT).show();
-                                loadingBar.dismiss();
+                                busID = mAuth.getCurrentUser().getUid();
+                                dbRefBus = FirebaseDatabase.getInstance().getReference().child("Users").child("Bus").child(busID);
+                                dbRefBus.setValue(true);
 
                                 Intent intent = new Intent(BusActivity.this, BusMapActivity.class);
                                 startActivity(intent);
 
+                                Toast.makeText(BusActivity.this, "Bus account created successfully.", Toast.LENGTH_SHORT).show();
+                                loadingBar.dismiss();
                             }else{
                                 Toast.makeText(BusActivity.this, "An error occured. Please try again.", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
