@@ -27,8 +27,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.List;
 
 public class BusMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -38,11 +43,12 @@ public class BusMapActivity extends FragmentActivity implements OnMapReadyCallba
     Location lastLocation;
     LocationRequest locationRequest;
 
-    private Button buttonLogout;
-    private Button buttonSetting;
+    private Button buttonLogout, buttonSetting;
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
     private Boolean currentLogout = false;
+    private DatabaseReference assignedPassengerRef, assignedPassengerPickUpPointRef;
+    private String busID,passengerID = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +57,7 @@ public class BusMapActivity extends FragmentActivity implements OnMapReadyCallba
 
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
+        busID = auth.getCurrentUser().getUid();
 
         buttonLogout = (Button)findViewById(R.id.btnLogoutBus);
         buttonSetting = (Button)findViewById(R.id.btnSettingsBus);
@@ -68,6 +75,59 @@ public class BusMapActivity extends FragmentActivity implements OnMapReadyCallba
 
                 auth.signOut();
                 logoutBus();
+            }
+        });
+        getPassengerRequest();
+
+    }
+
+    private void getPassengerRequest() {
+        assignedPassengerRef = FirebaseDatabase.getInstance().getReference().child("Users")
+                .child("Bus").child(busID).child("PassengersID");
+        assignedPassengerRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists()){
+                    passengerID = snapshot.getValue().toString();
+
+                    getPassengerPickUpPoint();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void getPassengerPickUpPoint() {
+        assignedPassengerPickUpPointRef = FirebaseDatabase.getInstance().getReference().child("Passengers Requests").child(passengerID).child("l");
+
+        assignedPassengerPickUpPointRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    List<Object> passengerLocationMap = (List<Object>)snapshot.getValue();
+
+                    double locationLat = 0;
+                    double locationLng = 0;
+
+                    if(passengerLocationMap.get(0) != null) {
+                        locationLat = Double.parseDouble(passengerLocationMap.get(0).toString());
+                    }
+                    if(passengerLocationMap.get(1) != null) {
+                        locationLng = Double.parseDouble(passengerLocationMap.get(1).toString());
+                    }
+                    LatLng busLatLng = new LatLng(locationLat, locationLng);
+                    mMap.addMarker(new MarkerOptions().position(busLatLng).title("Pick Up location"));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -111,18 +171,32 @@ public class BusMapActivity extends FragmentActivity implements OnMapReadyCallba
 
     @Override
     public void onLocationChanged(Location location) {
-        lastLocation = location;
+        if(getApplicationContext() != null){
+            lastLocation = location;
 
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Bus is Available");
+            String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        GeoFire geoFire = new GeoFire(databaseReference);
-        geoFire.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+            DatabaseReference busAvailRef = FirebaseDatabase.getInstance().getReference().child("Bus is Available");
+            GeoFire geoFireAvail = new GeoFire(busAvailRef);
 
+            DatabaseReference busWorkingRef =  FirebaseDatabase.getInstance().getReference().child("Bus Working");
+            GeoFire geoFireWorking = new GeoFire(busWorkingRef);
+
+            switch (passengerID){
+                case "":
+                    geoFireWorking.removeLocation(userID);
+                    geoFireAvail.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+                    break;
+                default:
+                    geoFireAvail.removeLocation(userID);
+                    geoFireWorking.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+                    break;
+            }
+        }
     }
 
     protected synchronized void buildGoogleApiClient() {

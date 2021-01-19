@@ -26,6 +26,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -51,16 +52,12 @@ public class PassengerMapActivity extends FragmentActivity implements OnMapReady
     private Boolean busFound = false;
     private String busFoundID;
 
-    private Button btnSettings;
-    private Button btnLogout;
-    private Button btnBook;
+    private Button btnSettings, btnLogout, btnBook;
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
+    Marker busMarker;
     private String passengerID;
-    private DatabaseReference passengerDbRef;
-    private DatabaseReference busAvailDbRef;
-    private DatabaseReference busRef;
-    private DatabaseReference busLocationRef;
+    private DatabaseReference passengerDbRef, busAvailDbRef, busRef, busLocationRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,12 +155,34 @@ public class PassengerMapActivity extends FragmentActivity implements OnMapReady
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        DataSnapshot dataSnapshot = null;
-                        if(dataSnapshot.exists()){
-                            List<Object> busLocationMap = (List<Object>)dataSnapshot.getValue();
+                        if(snapshot.exists()){
+                            List<Object> busLocationMap = (List<Object>)snapshot.getValue();
                             double locationLat = 0;
                             double locationLng = 0;
                             btnBook.setText("Bus Found");
+
+                            if(busLocationMap.get(0) != null) {
+                                locationLat = Double.parseDouble(busLocationMap.get(0).toString());
+                            }
+                            if(busLocationMap.get(1) != null) {
+                                locationLng = Double.parseDouble(busLocationMap.get(1).toString());
+                            }
+                            LatLng busLatLng = new LatLng(locationLat, locationLng);
+                            if(busMarker !=null) {
+                                busMarker.remove();
+                            }
+                            Location location = new Location("");
+                            location.setLatitude(passengerPickUpPoint.latitude);
+                            location.setLongitude(passengerPickUpPoint.longitude);
+
+                            Location location1 = new Location("");
+                            location1.setLatitude(busLatLng.latitude);
+                            location1.setLongitude(busLatLng.longitude);
+
+                            float distance = location.distanceTo(location1);
+                            btnBook.setText("Bus Found: " + String.valueOf(distance));
+
+                            busMarker = mMap.addMarker(new MarkerOptions().position(busLatLng).title("Your bus is here!"));
                         }
                     }
                     @Override
