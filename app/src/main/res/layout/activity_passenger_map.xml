@@ -23,7 +23,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="10dp"
-        android:text="Settings"/>
+        android:text="Settings"
+        map:backgroundTint="#EA3D08" />
 
     <Button
         android:id="@+id/btnLogoutPassenger"
@@ -35,7 +36,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="7dp"
         android:layout_marginRight="7dp"
-        android:text="Logout"/>
+        android:text="Logout"
+        map:backgroundTint="#EA3D08"/>
 
     <Button
         android:id="@+id/btnBook"
@@ -47,10 +49,26 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="140dp"
-        android:layout_marginLeft="145dp"
+        android:layout_marginLeft="140dp"
         android:layout_marginEnd="140dp"
-        android:layout_marginRight="145dp"
-        android:layout_marginBottom="60dp"
+        android:layout_marginRight="140dp"
+        android:layout_marginBottom="62dp"
+        map:backgroundTint="#EA3D08"
         android:text="Book a bus" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="176dp"
+        android:layout_marginLeft="176dp"
+        android:layout_marginTop="26dp"
+        android:fontFamily="@font/quicksand_bold"
+        android:text="PASSENGER"
+        android:gravity="center"
+        android:textColor="#E3360B" />
 
 </RelativeLayout>
